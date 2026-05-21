@@ -1,0 +1,20 @@
+[
+  {
+    "email": "user@example.com",
+    "article_id": "S5VcqCD9zI4",
+    "rating": "satisfied",
+    "timestamp": "2026-05-20T14:52:19.660947"
+  },
+  {
+    "email": "user@example.com",
+    "article_id": "ILliI9aj7H8",
+    "rating": "satisfied",
+    "timestamp": "2026-05-20T14:53:38.331685"
+  },
+  {
+    "email": "user@example.com",
+    "article_id": "https://news.infomaniak.com/en/infomaniak-foundation-sovereign-cloud/",
+    "rating": "satisfied",
+    "timestamp": "2026-05-20T16:19:25.906853"
+  }
+]

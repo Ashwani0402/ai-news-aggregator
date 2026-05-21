@@ -1,0 +1,53 @@
+{
+  "total": 85,
+  "avg_length": 93,
+  "unique_keywords": 645,
+  "top_keywords": [
+    [
+      "artificial",
+      22
+    ],
+    [
+      "florida",
+      22
+    ],
+    [
+      "intelligence",
+      19
+    ],
+    [
+      "google",
+      13
+    ],
+    [
+      "news",
+      9
+    ],
+    [
+      "most",
+      8
+    ],
+    [
+      "executed",
+      8
+    ],
+    [
+      "killing",
+      8
+    ],
+    [
+      "young",
+      8
+    ],
+    [
+      "caught",
+      8
+    ]
+  ],
+  "source_distribution": {
+    "youtube": 30,
+    "hacker_news": 15,
+    "florida_man": 10,
+    "news": 30
+  }
+}
