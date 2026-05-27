@@ -1,0 +1,20 @@
+{
+  "last_duration": 256.86,
+  "success_rate": 100.0,
+  "last_articles": 15,
+  "runs": [
+    {
+      "duration": 246.55,
+      "success": true,
+      "articles": 115,
+      "timestamp": "2026-05-27T13:43:46.136669"
+    },
+    {
+      "duration": 256.86,
+      "success": true,
+      "articles": 15,
+      "timestamp": "2026-05-27T14:12:08.179296"
+    }
+  ],
+  "last_updated": "2026-05-27T14:12:08.179296"
+}

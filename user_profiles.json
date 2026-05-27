@@ -1,7 +1,5 @@
 {
   "user@example.com": {
-    "interests": [
-      "Entertainment"
-    ]
+    "interests": []
   }
 }

@@ -1,47 +1,47 @@
 {
   "total": 85,
-  "avg_length": 93,
-  "unique_keywords": 645,
+  "avg_length": 347,
+  "unique_keywords": 1380,
   "top_keywords": [
     [
       "artificial",
-      22
+      40
     ],
     [
-      "florida",
-      22
+      "pope",
+      34
     ],
     [
       "intelligence",
-      19
+      31
     ],
     [
-      "google",
+      "potential",
+      29
+    ],
+    [
+      "florida",
+      20
+    ],
+    [
+      "significant",
+      18
+    ],
+    [
+      "human",
+      17
+    ],
+    [
+      "development",
+      15
+    ],
+    [
+      "need",
       13
     ],
     [
-      "news",
-      9
-    ],
-    [
-      "most",
-      8
-    ],
-    [
-      "executed",
-      8
-    ],
-    [
-      "killing",
-      8
-    ],
-    [
-      "young",
-      8
-    ],
-    [
-      "caught",
-      8
+      "impact",
+      12
     ]
   ],
   "source_distribution": {

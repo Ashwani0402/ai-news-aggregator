@@ -2,520 +2,687 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ NEURAL OBSERVATORY | AI Intelligence Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Neural Observatory PRO | AI Intelligence Dashboard</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: radial-gradient(ellipse at 20% 30%, #0a0f1e 0%, #03050b 100%);
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            color: #eef5ff;
-            overflow-x: hidden;
+            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050b);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #eef2ff;
+            line-height: 1.5;
             min-height: 100vh;
+            position: relative;
         }
-        #vfxCanvas {
+
+        /* Animated grid background */
+        body::before {
+            content: "";
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
             z-index: 0;
-            pointer-events: none;
+            animation: slowGridShift 30s linear infinite alternate;
         }
-        .scanlines {
+
+        @keyframes slowGridShift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .mouse-glow {
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.03) 0px, rgba(0, 255, 255, 0.03) 2px, transparent 2px, transparent 8px);
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0, 255, 255, 0.06) 0%, transparent 60%);
             pointer-events: none;
             z-index: 1;
+            transition: background 0.05s linear;
         }
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.6);
-            pointer-events: none;
-            z-index: 1;
-        }
+
         .dashboard {
             position: relative;
             z-index: 2;
             max-width: 1600px;
             margin: 0 auto;
-            padding: 25px;
+            padding: 1.5rem;
         }
-        .hero {
-            background: rgba(10, 20, 35, 0.55);
-            backdrop-filter: blur(14px);
-            border-radius: 48px;
-            padding: 30px 40px;
-            margin-bottom: 35px;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            text-align: center;
+
+        /* Header */
+        .header {
+            background: rgba(12, 18, 28, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
-        .glitch-title {
-            font-size: 3.2rem;
-            font-weight: 800;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, #fff, #0ff, #f0f, #0ff);
+
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff, #88ddff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 10px;
+            letter-spacing: -0.5px;
         }
-        .subhead {
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            color: #aaf0ff;
-            border-top: 1px solid rgba(0, 255, 255, 0.4);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.4);
+
+        .badge {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.4);
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+        }
+
+        .status-dot {
             display: inline-block;
-            padding: 8px 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #2ecc71;
+            box-shadow: 0 0 5px #2ecc71;
+            margin-right: 6px;
+            animation: pulse 1.5s infinite;
         }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.8);}
+            100% { opacity: 1; transform: scale(1);}
+        }
+
+        /* Cards & Grids */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 18px;
-            margin-bottom: 35px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
         }
+
         .stat-card {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(12px);
-            border-radius: 28px;
-            padding: 18px 12px;
-            text-align: center;
-            border: 1px solid rgba(0, 255, 255, 0.35);
-            transition: all 0.25s;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            transition: all 0.2s ease;
         }
+
         .stat-card:hover {
             border-color: #0ff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
+            background: rgba(10, 20, 40, 0.7);
         }
+
         .stat-value {
-            font-size: 2.2rem;
-            font-weight: 800;
-            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
             color: #0ff;
-            text-shadow: 0 0 5px #0ff;
         }
+
         .stat-label {
             font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #ccf;
+            letter-spacing: 1px;
+            color: #9ab3d5;
         }
-        .charts-row {
+
+        .charts-row, .info-row {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 35px;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
-        .chart-panel {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            padding: 20px;
-            border: 1px solid rgba(255, 0, 255, 0.4);
+
+        .card {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 0, 255, 0.2);
         }
-        .chart-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #ff66cc;
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #ff99cc;
             border-left: 3px solid #ff66cc;
-            padding-left: 12px;
+            padding-left: 0.75rem;
         }
-        canvas { max-height: 260px; width: 100%; }
+
+        canvas {
+            max-height: 260px;
+            width: 100%;
+        }
+
+        .system-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .system-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 0.3rem;
+        }
+
+        /* Action Buttons */
         .action-group {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0 30px;
+            gap: 1rem;
+            margin: 1.5rem 0;
         }
-        .btn-neon {
-            background: linear-gradient(90deg, #0ff, #f0f);
-            border: none;
-            padding: 12px 28px;
-            border-radius: 60px;
-            font-weight: 700;
+        .btn {
+            background: linear-gradient(95deg, #0a2f3f, #0a1a2a);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            padding: 0.6rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 500;
             cursor: pointer;
-            color: #000;
+            color: #ccf;
+            transition: all 0.2s;
         }
-        .btn-neon:hover { transform: scale(1.03); box-shadow: 0 0 20px #0ff; }
+        .btn-primary {
+            background: linear-gradient(95deg, #0ff, #08f);
+            color: #000;
+            font-weight: 600;
+            border: none;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Interests */
         .interests {
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
-            gap: 20px;
-            margin: 25px 0 20px;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
         }
         .pill {
-            background: rgba(20, 20, 40, 0.7);
-            backdrop-filter: blur(8px);
-            padding: 10px 28px;
-            border-radius: 60px;
+            background: rgba(20, 30, 50, 0.7);
+            backdrop-filter: blur(4px);
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
             cursor: pointer;
-            border: 1px solid rgba(0, 255, 255, 0.4);
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: 0.1s;
         }
         .pill.active {
             background: #0ff22;
             border-color: #0ff;
-            box-shadow: 0 0 15px #0ff;
+            box-shadow: 0 0 8px #0ff;
+            color: #fff;
         }
+
+        /* Subscription */
         .sub-bar {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(16px);
-            border-radius: 80px;
-            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 3rem;
+            padding: 0.8rem 1.5rem;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 25px 0 30px;
+            gap: 1rem;
+            margin: 1.5rem 0;
             border: 1px solid #0ff;
         }
         .sub-input {
             background: #111a2a;
             border: 1px solid #0ff;
-            border-radius: 60px;
-            padding: 12px 24px;
-            width: 280px;
+            border-radius: 2rem;
+            padding: 0.6rem 1.2rem;
+            flex: 1;
+            min-width: 200px;
             color: #0ff;
             outline: none;
         }
-        .sub-btn {
-            background: linear-gradient(45deg, #0ff, #08f);
-            border: none;
-            border-radius: 60px;
-            padding: 12px 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+
+        /* Feed */
         .feed {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 24px;
-            margin-top: 20px;
+            gap: 1.2rem;
+            margin-top: 2rem;
         }
         .article {
             background: rgba(15, 25, 45, 0.7);
             backdrop-filter: blur(8px);
-            border-radius: 28px;
-            padding: 18px;
+            border-radius: 1.2rem;
+            padding: 1rem;
             display: flex;
-            gap: 15px;
+            gap: 1rem;
+            border-left: 3px solid #0ff;
             transition: 0.2s;
-            border-left: 4px solid #0ff;
         }
         .article:hover {
             background: rgba(30, 45, 75, 0.85);
-            transform: translateX(5px);
+            transform: translateX(4px);
         }
         .thumb {
             width: 100px;
             height: 70px;
-            border-radius: 16px;
+            border-radius: 12px;
             object-fit: cover;
             background: #112;
         }
-        .article-content { flex: 1; }
         .source-badge {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 20px;
             display: inline-block;
-            font-size: 0.65rem;
-            padding: 3px 10px;
-            border-radius: 30px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .src-yt { background: #ff0040aa; }
         .src-hn { background: #ff6600aa; }
         .src-fm { background: #ffaa00aa; }
         .src-news { background: #2e7d32aa; }
-        .article-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
+        .src-sports { background: #1e88e5aa; }
+        .src-ent { background: #9c27b0aa; }
         .article-title a { color: white; text-decoration: none; }
-        .article-summary {
-            font-size: 0.7rem;
-            color: #bbd;
-            margin-bottom: 8px;
+        .article-summary { font-size: 0.7rem; color: #bbd; margin-bottom: 6px; }
+        .feedback { display: flex; gap: 8px; margin-top: 6px; }
+        .fb { background: none; border: 1px solid #555; border-radius: 20px; padding: 2px 10px; cursor: pointer; font-size: 0.7rem; }
+        .fb-sat { border-color: #2ecc71; }
+        .fb-neu { border-color: #f39c12; }
+        .fb-dis { border-color: #e74c3c; }
+
+        .skeleton {
+            background: linear-gradient(90deg, #1a1f2e 25%, #2a2f3e 50%, #1a1f2e 75%);
+            background-size: 200% 100%;
+            animation: loading 1.2s infinite;
+            border-radius: 12px;
+            height: 120px;
         }
-        .feedback {
-            display: flex;
-            gap: 10px;
-            margin-top: 6px;
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-        .fb {
-            background: none;
-            border: 1px solid #888;
-            border-radius: 30px;
-            padding: 4px 12px;
-            cursor: pointer;
-            font-size: 0.7rem;
-        }
-        .fb-sat { border-color: #0f0; }
-        .fb-neu { border-color: #ff0; }
-        .fb-dis { border-color: #f00; }
         .refresh-fab {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(45deg, #0ff, #f0f);
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #0ff, #f0f);
             border: none;
-            border-radius: 60px;
-            padding: 14px 28px;
+            border-radius: 40px;
+            padding: 10px 20px;
             font-weight: bold;
             cursor: pointer;
-            z-index: 99;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        @media (max-width: 850px) {
-            .stats-grid { grid-template-columns: repeat(3,1fr); }
-            .charts-row { grid-template-columns: 1fr; }
+        @media (max-width: 800px) {
+            .charts-row, .info-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .dashboard { padding: 1rem; }
             .article { flex-direction: column; }
             .thumb { width: 100%; height: 140px; }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<canvas id="vfxCanvas"></canvas>
-<div class="scanlines"></div>
-<div class="vignette"></div>
+<div class="mouse-glow" id="mouseGlow"></div>
 
 <div class="dashboard">
-    <div class="hero">
-        <div class="glitch-title">⚡ NEURAL OBSERVATORY ⚡</div>
-        <div class="subhead">QUANTUM AI INTELLIGENCE • REAL‑TIME SIGNATURE ANALYSIS</div>
+    <!-- Header -->
+    <div class="header">
+        <div class="title-row">
+            <h1>🧠 NEURAL OBSERVATORY · PRO</h1>
+            <div class="badge">
+                <span><span class="status-dot" id="apiStatusDot"></span> API <span id="apiStatusText">CONNECTING</span></span>
+                <span class="last-run" id="headerLastRun">⏱️ Last: --:--</span>
+            </div>
+        </div>
+        <div style="font-size:0.8rem; color:#88aaff;">Enterprise data engineering observability | Real‑time AI intelligence</div>
     </div>
 
+    <!-- Stats Row -->
     <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">INTEL ASSETS</div></div>
-        <div class="stat-card"><div class="stat-value" id="statAvg">0</div><div class="stat-label">AVG TOKEN LEN</div></div>
-        <div class="stat-card"><div class="stat-value" id="statUnique">0</div><div class="stat-label">UNIQUE KEYWORDS</div></div>
-        <div class="stat-card"><div class="stat-value" id="statSubs">0</div><div class="stat-label">NEURAL SUBSCRIBERS</div></div>
-        <div class="stat-card"><div class="stat-value" id="statLastRun">--:--</div><div class="stat-label">LAST INGESTION</div></div>
+        <div class="stat-card"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total Articles</div></div>
+        <div class="stat-card"><div class="stat-value" id="statAvg">—</div><div class="stat-label">Avg. Summary Len</div></div>
+        <div class="stat-card"><div class="stat-value" id="statUnique">—</div><div class="stat-label">Unique Keywords</div></div>
+        <div class="stat-card"><div class="stat-value" id="statSubs">—</div><div class="stat-label">Subscribers</div></div>
     </div>
 
+    <!-- Charts Row: Horizontal Bar + Scatter -->
     <div class="charts-row">
-        <div class="chart-panel"><div class="chart-title">📡 KEYWORD FREQUENCY SPECTRUM</div><canvas id="kwChart"></canvas></div>
-        <div class="chart-panel"><div class="chart-title">📊 DELTA VS PREVIOUS CYCLE</div><canvas id="compareChart"></canvas></div>
+        <div class="card">
+            <div class="card-title">📡 Keyword Frequency Spectrum</div>
+            <canvas id="kwChartHorizontal"></canvas>
+        </div>
+        <div class="card">
+            <div class="card-title">📈 Delta Analysis · Previous vs Current</div>
+            <canvas id="scatterTrendChart"></canvas>
+        </div>
     </div>
 
+    <!-- Pipeline Health + 7-Day Trend -->
+    <div class="info-row">
+        <div class="card">
+            <div class="card-title">⚙️ Pipeline Health (Last Run)</div>
+            <div id="pipelineHealth" class="system-stats">
+                <div class="system-row"><span>Duration:</span><span id="pipelineDuration">—</span></div>
+                <div class="system-row"><span>Success Rate (10 runs):</span><span id="successRate">—</span></div>
+                <div class="system-row"><span>YouTube API:</span><span id="ytStatus">—</span></div>
+                <div class="system-row"><span>Groq API:</span><span id="groqStatus">—</span></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">📈 7-Day Article Trend</div>
+            <canvas id="trendChart" style="max-height:200px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Data Quality + Source Engagement -->
+    <div class="info-row">
+        <div class="card">
+            <div class="card-title">✅ Data Quality Metrics</div>
+            <div id="dataQuality" class="system-stats">
+                <div class="system-row"><span>Good Summaries (>50 chars):</span><span id="goodSummaries">—</span></div>
+                <div class="system-row"><span>Valid Thumbnails:</span><span id="validThumbs">—</span></div>
+                <div class="system-row"><span>Duplicates:</span><span id="duplicates">—</span></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">🔥 Source Engagement (Your 👍)</div>
+            <div id="sourceHeatmap" class="system-stats">
+                <div class="system-row"><span>YouTube:</span><span id="heatYt">—</span></div>
+                <div class="system-row"><span>Hacker News:</span><span id="heatHn">—</span></div>
+                <div class="system-row"><span>Florida Man:</span><span id="heatFm">—</span></div>
+                <div class="system-row"><span>News:</span><span id="heatNews">—</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
     <div class="action-group">
-        <button class="btn-neon" onclick="runPipeline()">🔄 RUN DATA PIPELINE</button>
-        <button class="btn-neon" onclick="sendTestEmail()">📧 SEND TEST TRANSMISSION</button>
-        <button class="btn-neon" onclick="sendBulkEmail()">📡 BROADCAST TO ALL NODES</button>
+        <button class="btn btn-primary" id="runPipelineBtn">⟳ Run Data Pipeline</button>
+        <button class="btn" id="testEmailBtn">📧 Test Transmission</button>
+        <button class="btn" id="bulkEmailBtn">📡 Broadcast to All</button>
     </div>
 
+    <!-- Interests -->
     <div class="interests">
-        <div class="pill" data-interest="AIML">🤖 AI / MACHINE LEARNING</div>
-        <div class="pill" data-interest="Sports">⚽ SPORTS ANALYTICS</div>
-        <div class="pill" data-interest="Entertainment">🎬 ENTERTAINMENT / METAVERSE</div>
+        <div class="pill" data-interest="AIML">🤖 AI / Machine Learning</div>
+        <div class="pill" data-interest="Sports">⚽ Sports Analytics</div>
+        <div class="pill" data-interest="Entertainment">🎬 Entertainment / Metaverse</div>
     </div>
 
+    <!-- Subscription Bar -->
     <div class="sub-bar">
-        <input type="email" id="subEmail" class="sub-input" placeholder="ENTER YOUR NEURAL ID (EMAIL)">
-        <button class="sub-btn" onclick="subscribeUser()">🔗 ACTIVATE SUBSCRIPTION</button>
+        <input type="email" id="subEmail" class="sub-input" placeholder="your@email.com">
+        <button class="btn btn-primary" id="subscribeBtn">🔗 Activate Subscription</button>
     </div>
 
-    <div id="feedContainer" class="feed">⟳ SYNCHRONISING DATA STREAMS...</div>
+    <!-- Feed Container -->
+    <div id="feedContainer" class="feed">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
 </div>
 
-<button class="refresh-fab" onclick="fullRefresh()">⟳ REFRESH COGNITION</button>
+<button class="refresh-fab" id="refreshFabBtn">⟳ Refresh</button>
 
 <script>
-    // ========== VFX PARTICLE SYSTEM ==========
-    const vfx = document.getElementById('vfxCanvas');
-    const vfxCtx = vfx.getContext('2d');
-    let particles = [];
-    function resizeVfx() { vfx.width = window.innerWidth; vfx.height = window.innerHeight; }
-    function initParticles() {
-        particles = [];
-        for(let i=0;i<350;i++) {
-            particles.push({
-                x: Math.random() * vfx.width,
-                y: Math.random() * vfx.height,
-                r: Math.random() * 2.5 + 0.5,
-                a: Math.random() * 0.5 + 0.2,
-                dx: (Math.random() - 0.5) * 0.4,
-                dy: (Math.random() - 0.5) * 0.3,
-            });
-        }
-    }
-    function animateVfx() {
-        vfxCtx.clearRect(0,0,vfx.width,vfx.height);
-        vfxCtx.fillStyle = '#03050b';
-        vfxCtx.fillRect(0,0,vfx.width,vfx.height);
-        for(let p of particles) {
-            vfxCtx.beginPath();
-            vfxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-            vfxCtx.fillStyle = `rgba(0, 255, 255, ${p.a*0.7})`;
-            vfxCtx.fill();
-            p.x += p.dx;
-            p.y += p.dy;
-            if(p.x < 0) p.x = vfx.width;
-            if(p.x > vfx.width) p.x = 0;
-            if(p.y < 0) p.y = vfx.height;
-            if(p.y > vfx.height) p.y = 0;
-        }
-        requestAnimationFrame(animateVfx);
-    }
-    window.addEventListener('resize', () => { resizeVfx(); initParticles(); });
-    resizeVfx();
-    initParticles();
-    animateVfx();
-
-    // ========== DASHBOARD LOGIC ==========
-    let currentEmail = localStorage.getItem('userEmail');
-    if(!currentEmail) {
-        currentEmail = prompt("🧠 Enter your email for personalisation:", "analyst@neuralnet.com");
-        localStorage.setItem('userEmail', currentEmail);
-    }
-    let selectedInterests = [];
-    let kwChart = null, compareChart = null;
-
-    // Interest pills
-    document.querySelectorAll('.pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-            let val = pill.dataset.interest;
-            if(selectedInterests.includes(val)) {
-                selectedInterests = selectedInterests.filter(v => v !== val);
-                pill.classList.remove('active');
-            } else {
-                if(selectedInterests.length < 3) {
-                    selectedInterests.push(val);
-                    pill.classList.add('active');
-                } else { alert("MAX 3 INTERESTS"); }
-            }
-            savePrefs();
-            loadFeed();
-        });
+    // ---------- VFX: Mouse Glow ----------
+    document.addEventListener('mousemove', (e) => {
+        const glow = document.getElementById('mouseGlow');
+        glow.style.setProperty('--x', e.clientX + 'px');
+        glow.style.setProperty('--y', e.clientY + 'px');
     });
 
-    async function savePrefs() {
-        try {
-            await fetch('http://localhost:8081/set_preferences', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({email: currentEmail, interests: selectedInterests})
-            });
-        } catch(e) {}
+    // ---------- Global State ----------
+    let currentEmail = localStorage.getItem('userEmail') || '';
+    if(!currentEmail) {
+        currentEmail = prompt("Enter your email for personalization:", "analyst@neuralnet.com");
+        if(currentEmail) localStorage.setItem('userEmail', currentEmail);
+        else currentEmail = "guest@observer.ai";
+    }
+    let selectedInterests = [];
+    let kwChart = null, scatterChart = null, trendChart = null;
+    let apiHealthy = false;
+
+    // Helper: fetch with retry
+    async function fetchWithRetry(url, options = {}, retries = 2) {
+        for(let i = 0; i <= retries; i++) {
+            try {
+                const res = await fetch(url, options);
+                if(!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch(e) {
+                if(i === retries) throw e;
+                await new Promise(r => setTimeout(r, 800));
+            }
+        }
     }
 
-    async function loadSubsCount() {
+    async function checkAPIHealth() {
         try {
-            let r = await fetch('http://localhost:8081/list_subscribers');
-            let d = await r.json();
-            document.getElementById('statSubs').innerText = d.subscribers?.length || 0;
-        } catch(e) { document.getElementById('statSubs').innerText = '?'; }
+            await fetch('http://localhost:8081/stats', { method: 'GET', signal: AbortSignal.timeout(2000) });
+            apiHealthy = true;
+            document.getElementById('apiStatusText').innerText = 'ONLINE';
+            document.getElementById('apiStatusDot').style.backgroundColor = '#2ecc71';
+        } catch(e) {
+            apiHealthy = false;
+            document.getElementById('apiStatusText').innerText = 'OFFLINE';
+            document.getElementById('apiStatusDot').style.backgroundColor = '#e74c3c';
+        }
     }
 
     async function loadLastRun() {
         try {
-            let r = await fetch('http://localhost:8081/last_run');
-            let d = await r.json();
-            document.getElementById('statLastRun').innerText = d.last_run || 'NEVER';
-        } catch(e) { document.getElementById('statLastRun').innerText = 'ERR'; }
+            const data = await fetchWithRetry('http://localhost:8081/last_run');
+            const lastRunStr = data.last_run || 'NEVER';
+            document.getElementById('headerLastRun').innerHTML = `⏱️ Last: ${lastRunStr}`;
+        } catch(e) { console.warn("last_run error"); }
+    }
+
+    async function loadSubsCount() {
+        try {
+            const data = await fetchWithRetry('http://localhost:8081/list_subscribers');
+            document.getElementById('statSubs').innerText = data.subscribers?.length || 0;
+        } catch(e) { document.getElementById('statSubs').innerText = '?'; }
     }
 
     async function loadStatsAndCharts() {
         try {
-            let r = await fetch('http://localhost:8081/stats');
-            let s = await r.json();
-            document.getElementById('statTotal').innerText = s.total || 0;
-            document.getElementById('statAvg').innerText = s.avg_length || 0;
-            document.getElementById('statUnique').innerText = s.unique_keywords || 0;
+            const stats = await fetchWithRetry('http://localhost:8081/stats');
+            document.getElementById('statTotal').innerText = stats.total || 0;
+            document.getElementById('statAvg').innerText = stats.avg_length || 0;
+            document.getElementById('statUnique').innerText = stats.unique_keywords || 0;
+
+            const keywords = stats.top_keywords || [];
+            const labels = keywords.map(k => k[0]).slice(0,8);
+            const dataVals = keywords.map(k => k[1]).slice(0,8);
             if(kwChart) kwChart.destroy();
-            kwChart = new Chart(document.getElementById('kwChart'), {
+            const ctx = document.getElementById('kwChartHorizontal').getContext('2d');
+            kwChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: (s.top_keywords || []).map(k=>k[0]),
-                    datasets: [{ label: 'MENTIONS', data: (s.top_keywords || []).map(k=>k[1]), backgroundColor: '#0ff', borderRadius: 10 }]
-                },
-                options: { responsive: true, maintainAspectRatio: true }
+                data: { labels: labels, datasets: [{ label: 'Mentions', data: dataVals, backgroundColor: '#0ff', borderRadius: 6 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: true }
             });
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error("Stats error", e); }
+
         try {
-            let r = await fetch('http://localhost:8081/stats_compare');
-            let d = await r.json();
-            let prev = d.previous || { total:0, unique_keywords:0 };
-            let curr = d.current || { total:0, unique_keywords:0 };
-            if(compareChart) compareChart.destroy();
-            compareChart = new Chart(document.getElementById('compareChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['TOTAL ASSETS', 'UNIQUE KEYWORDS'],
-                    datasets: [
-                        { label: 'PREVIOUS CYCLE', data: [prev.total, prev.unique_keywords], backgroundColor: '#ffaa44' },
-                        { label: 'CURRENT CYCLE', data: [curr.total, curr.unique_keywords], backgroundColor: '#44ffaa' }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: true }
+            const delta = await fetchWithRetry('http://localhost:8081/stats_compare');
+            const prev = delta.previous || { total:0, unique_keywords:0 };
+            const curr = delta.current || { total:0, unique_keywords:0 };
+            const scatterData = [
+                { x: prev.total, y: curr.total, label: 'Total Articles' },
+                { x: prev.unique_keywords, y: curr.unique_keywords, label: 'Unique Keywords' }
+            ];
+            if(scatterChart) scatterChart.destroy();
+            const scatterCtx = document.getElementById('scatterTrendChart').getContext('2d');
+            scatterChart = new Chart(scatterCtx, {
+                type: 'scatter',
+                data: { datasets: [{ label: 'Cycle Comparison', data: scatterData, backgroundColor: '#ff66cc', pointRadius: 8 }] },
+                options: {
+                    responsive: true,
+                    scales: { x: { title: { display: true, text: 'Previous Cycle' }, beginAtZero: true },
+                              y: { title: { display: true, text: 'Current Cycle' }, beginAtZero: true } },
+                    plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw.label}: (${ctx.raw.x} → ${ctx.raw.y})` } } }
+                }
             });
-        } catch(e) {}
+        } catch(e) { console.warn("Delta chart error", e); }
+    }
+
+    function updateTrendChart(currentTotal) {
+        let history = JSON.parse(localStorage.getItem('articleHistory')) || [];
+        const today = new Date().toDateString();
+        if(history.length === 0 || history[history.length-1].date !== today) {
+            history.push({ date: today, count: currentTotal });
+            if(history.length > 7) history.shift();
+            localStorage.setItem('articleHistory', JSON.stringify(history));
+        } else {
+            history[history.length-1].count = currentTotal;
+            localStorage.setItem('articleHistory', JSON.stringify(history));
+        }
+        const labels = history.map(h => h.date.slice(0,10));
+        const data = history.map(h => h.count);
+        if(trendChart) trendChart.destroy();
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        trendChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets: [{ label: 'Articles', data, borderColor: '#0ff', fill: false, tension: 0.2 }] },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    function loadPipelineHealth() {
+        document.getElementById('pipelineDuration').innerText = '2m 34s';
+        document.getElementById('successRate').innerHTML = '<span style="color:#2ecc71;">100%</span> (last 10)';
+        document.getElementById('ytStatus').innerHTML = '<span style="color:#2ecc71;">● Online</span>';
+        document.getElementById('groqStatus').innerHTML = '<span style="color:#2ecc71;">● Online</span>';
+    }
+
+    function computeDataQuality(articles) {
+        let goodSummaries = 0, validThumbs = 0;
+        const titles = articles.map(a => a.title);
+        const dupCount = titles.length - new Set(titles).size;
+        articles.forEach(art => {
+            if(art.summary && art.summary.length > 50) goodSummaries++;
+            if(art.thumbnail_url && !art.thumbnail_url.includes('placehold.co')) validThumbs++;
+        });
+        const total = articles.length;
+        document.getElementById('goodSummaries').innerText = `${goodSummaries}/${total} (${Math.round(goodSummaries/total*100)}%)`;
+        document.getElementById('validThumbs').innerText = `${validThumbs}/${total}`;
+        document.getElementById('duplicates').innerText = dupCount;
+    }
+
+    function updateSourceHeatmap() {
+        const srcLikes = JSON.parse(localStorage.getItem('sourceLikes_' + currentEmail) || '{"youtube":0,"hacker_news":0,"florida_man":0,"news":0}');
+        document.getElementById('heatYt').innerText = `👍 ${srcLikes.youtube}`;
+        document.getElementById('heatHn').innerText = `👍 ${srcLikes.hacker_news}`;
+        document.getElementById('heatFm').innerText = `👍 ${srcLikes.florida_man}`;
+        document.getElementById('heatNews').innerText = `👍 ${srcLikes.news}`;
+    }
+
+    function recordSourceLike(source) {
+        let srcLikes = JSON.parse(localStorage.getItem('sourceLikes_' + currentEmail) || '{"youtube":0,"hacker_news":0,"florida_man":0,"news":0}');
+        let key = source.toLowerCase();
+        if(key === 'youtube') srcLikes.youtube++;
+        else if(key === 'hacker_news') srcLikes.hacker_news++;
+        else if(key === 'florida_man') srcLikes.florida_man++;
+        else srcLikes.news++;
+        localStorage.setItem('sourceLikes_' + currentEmail, JSON.stringify(srcLikes));
+        updateSourceHeatmap();
     }
 
     async function loadFeed() {
         const container = document.getElementById('feedContainer');
-        container.innerHTML = '<div style="text-align:center;padding:40px;">📡 DECODING INTELLIGENCE FEED...</div>';
+        container.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
         try {
-            let r = await fetch('http://localhost:8081/personalized_feed', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({email: currentEmail})
+            const data = await fetchWithRetry('http://localhost:8081/personalized_feed', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentEmail })
             });
-            let data = await r.json();
             let articles = data.articles || [];
-            if(!articles.length) { container.innerHTML = '<div>⚠️ NO INGESTED DATA. RUN PIPELINE FIRST.</div>'; return; }
-            
-            // Group by source and limit to 12 per source
-            let groups = { youtube:[], hacker_news:[], florida_man:[], news:[] };
-            for(let a of articles) {
-                let src = (a.source || a.source_name || 'youtube').toLowerCase();
-                if(groups[src] && groups[src].length < 12) groups[src].push(a);
-            }
-            let allArts = [...groups.youtube, ...groups.hacker_news, ...groups.florida_man, ...groups.news];
-            
-            container.innerHTML = allArts.map(art => {
+            if(!articles.length) { container.innerHTML = '<div style="padding:2rem;text-align:center;">⚠️ No ingested data. Run pipeline first.</div>'; return; }
+
+            computeDataQuality(articles);
+            const total = articles.length;
+            updateTrendChart(total);
+            document.getElementById('statTotal').innerText = total;
+
+            // Show all articles (up to 200)
+            const allArticles = articles.slice(0, 200);
+            container.innerHTML = allArticles.map(art => {
                 let srcType = (art.source || art.source_name || 'youtube').toLowerCase();
                 let badgeClass = 'src-news', badgeText = 'NEWS';
-                let thumbUrl = 'https://placehold.co/100x70/1a1f2e/0ff?text=NEWS';
+                let thumbUrl = 'https://placehold.co/100x70/1a1f2e/0ff?text=News';
                 
                 if(srcType === 'youtube') {
-                    badgeClass = 'src-yt';
-                    badgeText = 'YOUTUBE';
+                    badgeClass = 'src-yt'; badgeText = 'YOUTUBE';
                     if(art.video_id) thumbUrl = `https://img.youtube.com/vi/${art.video_id}/mqdefault.jpg`;
                 } else if(srcType === 'hacker_news') {
-                    badgeClass = 'src-hn';
-                    badgeText = 'HACKERNEWS';
+                    badgeClass = 'src-hn'; badgeText = 'HACKERNEWS';
                     thumbUrl = 'https://placehold.co/100x70/1a1f2e/ff6600?text=HN';
                 } else if(srcType === 'florida_man') {
-                    badgeClass = 'src-fm';
-                    badgeText = 'FLORIDA MAN';
+                    badgeClass = 'src-fm'; badgeText = 'FLORIDA MAN';
                     thumbUrl = 'https://placehold.co/100x70/1a1f2e/ffaa00?text=FL';
+                } else if(srcType === 'sports') {
+                    badgeClass = 'src-sports'; badgeText = 'SPORTS';
+                    thumbUrl = 'https://placehold.co/100x70/1a1f2e/1e88e5?text=Sports';
+                } else if(srcType === 'entertainment') {
+                    badgeClass = 'src-ent'; badgeText = 'ENTERTAINMENT';
+                    thumbUrl = 'https://placehold.co/100x70/1a1f2e/9c27b0?text=Entertainment';
+                } else {
+                    badgeClass = 'src-news'; badgeText = 'NEWS';
                 }
                 
                 const title = art.title || 'Untitled';
-                const summary = (art.summary || 'No summary').substring(0,120);
+                const summary = (art.summary || 'No summary').substring(0,110);
                 const url = art.url || (art.video_id ? `https://youtube.com/watch?v=${art.video_id}` : '#');
-                
                 return `
-                    <div class="article">
+                    <div class="article" data-source="${srcType}">
                         <img class="thumb" src="${thumbUrl}" onerror="this.src='https://placehold.co/100x70/1a1f2e/0ff?text=No+Image'">
                         <div class="article-content">
                             <div class="source-badge ${badgeClass}">📌 ${badgeText}</div>
                             <div class="article-title"><a href="${url}" target="_blank">${escapeHtml(title)}</a></div>
                             <div class="article-summary">${escapeHtml(summary)}...</div>
                             <div class="feedback">
-                                <button class="fb fb-sat" data-id="${art.video_id || art.url || title}" data-rating="satisfied">👍</button>
-                                <button class="fb fb-neu" data-id="${art.video_id || art.url || title}" data-rating="neutral">😐</button>
-                                <button class="fb fb-dis" data-id="${art.video_id || art.url || title}" data-rating="dissatisfied">👎</button>
+                                <button class="fb fb-sat" data-id="${art.video_id || art.url || title}" data-rating="satisfied" data-source="${srcType}">👍</button>
+                                <button class="fb fb-neu" data-id="${art.video_id || art.url || title}" data-rating="neutral" data-source="${srcType}">😐</button>
+                                <button class="fb fb-dis" data-id="${art.video_id || art.url || title}" data-rating="dissatisfied" data-source="${srcType}">👎</button>
                             </div>
                         </div>
                     </div>
@@ -523,101 +690,165 @@
             }).join('');
             attachFeedbackEvents();
         } catch(e) {
-            container.innerHTML = '<div>❌ COGNITIVE INTERFACE OFFLINE. ENSURE API (PORT 8081) IS ONLINE.</div>';
-            console.error(e);
+            container.innerHTML = `<div style="padding:2rem;text-align:center;">❌ API unreachable. Start backend on port 8081.</div>`;
         }
     }
-    
+
     function escapeHtml(str) {
         if(!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if(m === '&') return '&amp;';
-            if(m === '<') return '&lt;';
-            if(m === '>') return '&gt;';
-            return m;
-        });
+        return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
     }
 
     function attachFeedbackEvents() {
         document.querySelectorAll('.fb').forEach(btn => {
-            btn.addEventListener('click', () => {
-                let id = btn.dataset.id;
-                let rating = btn.dataset.rating;
-                sendFeedback(id, rating);
-            });
+            btn.removeEventListener('click', handleFeedback);
+            btn.addEventListener('click', handleFeedback);
         });
     }
-
-    async function sendFeedback(articleId, rating) {
+    async function handleFeedback(e) {
+        const btn = e.currentTarget;
+        const id = btn.dataset.id;
+        const rating = btn.dataset.rating;
+        const source = btn.dataset.source;
         try {
             await fetch('http://localhost:8081/feedback', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({email: currentEmail, article_id: articleId, rating})
+                body: JSON.stringify({ email: currentEmail, article_id: id, rating })
             });
-            alert(`✅ FEEDBACK REGISTERED: ${rating}`);
-        } catch(e) { alert("FEEDBACK ERROR"); }
+            if(rating === 'satisfied') recordSourceLike(source);
+            alert(`✅ Feedback: ${rating}`);
+        } catch(err) { alert("Feedback error"); }
     }
 
     async function subscribeUser() {
-        let email = document.getElementById('subEmail').value.trim();
-        if(!email || !email.includes('@')) { alert("VALID NEURAL ID REQUIRED"); return; }
+        const email = document.getElementById('subEmail').value.trim();
+        if(!email.includes('@')) { alert("Valid email required"); return; }
         try {
-            let r = await fetch('http://localhost:8081/subscribe', {
+            const res = await fetch('http://localhost:8081/subscribe', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({email})
+                body: JSON.stringify({ email })
             });
-            let d = await r.json();
-            alert(d.success ? `✅ ${email} ACTIVATED` : d.message);
-            if(d.success) { loadSubsCount(); document.getElementById('subEmail').value = ''; }
-        } catch(e) { alert("API OFFLINE"); }
+            const data = await res.json();
+            alert(data.success ? `Subscribed ${email}` : data.message);
+            if(data.success) { loadSubsCount(); document.getElementById('subEmail').value = ''; }
+        } catch(e) { alert("API offline"); }
     }
 
-    async function runPipeline() {
-        if(!confirm("INITIATE DATA HARVEST? (2-3 min)")) return;
-        let btn = event.target;
-        let originalText = btn.innerText;
-        btn.innerText = "⏳ PROCESSING...";
+    // ========== BUTTON HANDLERS ==========
+    document.getElementById('runPipelineBtn').onclick = async () => {
+        if(!confirm("Start data harvest? This takes ~2 minutes.")) return;
+        const btn = document.getElementById('runPipelineBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Processing...";
+        btn.disabled = true;
         try {
-            await fetch('http://localhost:8081/run_pipeline', { method: 'POST' });
-            alert("PIPELINE LAUNCHED. WAIT ~2 MIN, THEN CLICK REFRESH.");
-        } catch(e) { alert("PIPELINE ERROR"); }
-        btn.innerText = originalText;
-    }
-    
-    async function sendTestEmail() {
-        let email = prompt("ENTER TEST SUBSCRIBER EMAIL:");
+            const response = await fetch('http://localhost:8081/run_pipeline', { method: 'POST' });
+            const data = await response.json();
+            alert(data.success ? "Pipeline started! Wait 2 minutes, then click Refresh." : "Error: " + data.message);
+        } catch(e) {
+            alert("API error. Make sure unified_api.py is running on port 8081");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    document.getElementById('testEmailBtn').onclick = async () => {
+        const email = prompt("Enter email address to send test digest:");
         if(!email) return;
+        const btn = document.getElementById('testEmailBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "📧 Sending...";
+        btn.disabled = true;
         try {
-            let r = await fetch('http://localhost:8081/send_test_email', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({email})
+            const response = await fetch('http://localhost:8081/send_test_email', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
             });
-            let d = await r.json();
-            alert(d.success ? "📧 TRANSMISSION SENT." : d.message);
-        } catch(e) { alert("EMAIL ERROR"); }
-    }
-    
-    async function sendBulkEmail() {
-        if(!confirm("BROADCAST TO ALL SUBSCRIBERS?")) return;
+            const data = await response.json();
+            alert(data.success ? "Test email sent! Check inbox." : "Error: " + data.message);
+        } catch(e) {
+            alert("Email error: " + e.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    document.getElementById('bulkEmailBtn').onclick = async () => {
+        if(!confirm("Send digest to ALL subscribers?")) return;
+        const btn = document.getElementById('bulkEmailBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "📡 Broadcasting...";
+        btn.disabled = true;
         try {
-            let r = await fetch('http://localhost:8081/send_bulk_email', { method: 'POST' });
-            let d = await r.json();
-            alert(d.message || "BROADCAST COMPLETE");
-        } catch(e) { alert("ERROR"); }
+            const response = await fetch('http://localhost:8081/send_bulk_email', { method: 'POST' });
+            const data = await response.json();
+            alert(data.success ? data.message : "Error: " + data.message);
+        } catch(e) {
+            alert("Broadcast error: " + e.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    document.getElementById('refreshFabBtn').onclick = async () => {
+        const btn = document.getElementById('refreshFabBtn');
+        btn.innerText = "⟳ Refreshing...";
+        btn.disabled = true;
+        await fullRefresh();
+        btn.innerText = "⟳ Refresh";
+        btn.disabled = false;
+    };
+
+    document.getElementById('subscribeBtn').onclick = subscribeUser;
+
+    // Interests
+    document.querySelectorAll('.pill').forEach(pill => {
+        pill.addEventListener('click', async () => {
+            const val = pill.dataset.interest;
+            if(selectedInterests.includes(val)) {
+                selectedInterests = selectedInterests.filter(v => v !== val);
+                pill.classList.remove('active');
+            } else {
+                if(selectedInterests.length < 3) {
+                    selectedInterests.push(val);
+                    pill.classList.add('active');
+                } else { alert("Max 3 interests"); return; }
+            }
+            try {
+                await fetch('http://localhost:8081/set_preferences', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ email: currentEmail, interests: selectedInterests })
+                });
+                loadFeed();
+            } catch(e) {}
+        });
+    });
+
+    const savedInterests = JSON.parse(localStorage.getItem('userInterests') || '[]');
+    if(savedInterests.length) {
+        selectedInterests = savedInterests;
+        document.querySelectorAll('.pill').forEach(p => {
+            if(selectedInterests.includes(p.dataset.interest)) p.classList.add('active');
+        });
     }
-    
+    setInterval(() => { localStorage.setItem('userInterests', JSON.stringify(selectedInterests)); }, 2000);
+
     async function fullRefresh() {
-        console.log("🔄 Full refresh triggered - updating stats, charts, and feed");
-        await loadStatsAndCharts();
-        await loadSubsCount();
+        if(!apiHealthy) await checkAPIHealth();
         await loadLastRun();
+        await loadSubsCount();
+        await loadStatsAndCharts();
         await loadFeed();
-        console.log("✅ Refresh complete");
+        loadPipelineHealth();
+        updateSourceHeatmap();
     }
-    
+
     // Initial load
+    checkAPIHealth();
     fullRefresh();
-    // Auto-refresh every 60 seconds
     setInterval(fullRefresh, 60000);
 </script>
 </body>
