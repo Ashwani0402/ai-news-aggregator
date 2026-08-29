@@ -1,7 +1,3 @@
-Here is the complete README for your project in plain text, with no markdown symbols (*, #, _, etc.) so you can copy it directly without formatting artifacts.
-
----
-
 NEURAL OBSERVATORY – BIG DATA GENAI PIPELINE
 
 Python Version: 3.10+  |  License: MIT  |  Streamlit Cloud Ready  |  Apache Airflow  |  Apache Spark  |  Apache Kafka
