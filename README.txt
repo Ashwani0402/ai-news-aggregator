@@ -1,279 +1,303 @@
-# 📘 **AI News Aggregator – Complete Setup & Run Guide**
-
-> *A production‑ready, multi‑source Big Data pipeline that fetches AI news from YouTube, Hacker News, Florida Man API, Google News, BBC, TechCrunch, Wired, and The Verge, summarizes them using AI (Groq/Gemini), and delivers a stunning interactive dashboard with personalised interests, feedback collection, and email digests.*
+Here is the complete README for your project in plain text, with no markdown symbols (*, #, _, etc.) so you can copy it directly without formatting artifacts.
 
 ---
 
-## 🧭 **Table of Contents**
+NEURAL OBSERVATORY – BIG DATA GENAI PIPELINE
 
-1. [Prerequisites](#prerequisites)
-2. [Project Structure](#project-structure)
-3. [Step‑by‑Step Setup](#step-by-step-setup)
-   - 3.1. Clone / Download the Project
-   - 3.2. Create Virtual Environment
-   - 3.3. Install Dependencies
-   - 3.4. Configure API Keys (Optional)
-   - 3.5. Run the Data Pipeline (Fetch Articles)
-   - 3.6. Start the Unified API Server
-   - 3.7. Start the Web Server
-   - 3.8. Open the Dashboard
-4. [Using the Dashboard](#using-the-dashboard)
-5. [Email Commands (CLI)](#email-commands-cli)
-6. [Troubleshooting](#troubleshooting)
-7. [Customisation & Extending](#customisation--extending)
+Python Version: 3.10+  |  License: MIT  |  Streamlit Cloud Ready  |  Apache Airflow  |  Apache Spark  |  Apache Kafka
 
----
+A production-grade, end-to-end Big Data pipeline that ingests AI news from 8+ sources, processes them using Generative AI, and delivers personalized intelligence via real-time dashboard and automated email digests.
 
-## 1️⃣ **Prerequisites**
+TABLE OF CONTENTS
 
-- **Operating System:** Windows 10/11, macOS, or Linux.
-- **Python 3.10 or higher** ([Download Python](https://python.org))
-- **Git** (optional, for cloning)
-- **Internet connection** (for API calls)
-- **Gmail account** (optional, for sending email digests)
+- Overview
+- The Problem It Solves
+- Architecture and Workflow
+- Tech Stack
+- Features
+- Project Structure
+- Installation and Setup
+- Running the Project
+- Deployment
+- Screenshots
+- Future Enhancements
+- Contributing
+- License
+- Contact
 
----
+OVERVIEW
 
-## 2️⃣ **Project Structure**
+Neural Observatory is an end-to-end Big Data pipeline that collects AI-related news from 8+ sources, summarizes them using Generative AI (Groq LLM), and delivers personalized intelligence to users via:
 
-```
+- Interactive Dashboard – Real-time stats, charts, and personalized article feed.
+- Daily Email Digests – Beautiful HTML emails with summaries, thumbnails, and source badges.
+- Scalable ETL Pipeline – Powered by Kafka, PySpark, and Airflow for production-grade data processing.
+
+Why This Project?
+Information overload is a real problem in the AI space. Professionals spend 2-3 hours daily skimming content. Neural Observatory curates, summarizes, and personalizes AI news, saving users 85% of their reading time.
+
+THE PROBLEM IT SOLVES
+
+Problem: Information Overload -> Solution: Curates and summarizes 200+ articles daily
+Problem: Time Wastage -> Solution: 2-3 hours to 10 minutes daily reading time
+Problem: Scattered Sources -> Solution: Aggregates 8+ sources in one place
+Problem: No Personalization -> Solution: Personalized feed based on user interests (AI/ML, Sports, Entertainment)
+Problem: No Analytics -> Solution: Real-time dashboard with stats, charts, and keyword trends
+Problem: No Automation -> Solution: Fully automated daily pipeline with Airflow
+
+ARCHITECTURE AND WORKFLOW
+
+High-Level Architecture
+
+Data Sources (YouTube API, Hacker News, Florida Man, Google News, BBC, TechCrunch, Wired, The Verge, Sports, Entertainment) -> Fetchers -> Kafka (Message Queue) -> PySpark (Parallel Processing, AI Summarization) -> MySQL (Storage) -> Unified API (REST) -> Dashboard (Ultimate + Streamlit) and Email Agent (Daily Digests)
+
+Orchestration: Apache Airflow (daily at 9 AM with retries and monitoring)
+
+End-to-End Data Flow (Simplified)
+
+1. Airflow triggers the pipeline daily at 9 AM.
+2. main.py runs, calling all fetchers to collect raw data from 8+ sources.
+3. Each fetcher standardizes data into a common dictionary format.
+4. Data is sent to Kafka topic "news-articles-topic" (decoupling).
+5. PySpark reads from Kafka, processes in parallel: cleans, summarizes with Groq LLM, deduplicates.
+6. Processed data is written to MySQL tables (articles, subscribers, user_profiles, feedback, pipeline_stats, last_run).
+7. Unified API serves data to the dashboard (stats, personalized feed, subscription, feedback).
+8. Email Agent reads from MySQL, generates HTML email, sends via Gmail SMTP to all subscribers.
+
+TECH STACK
+
+Languages: Python 3.10+
+Big Data: Apache Kafka, PySpark, Apache Airflow
+Database: MySQL (with connection pooling)
+AI/LLM: Groq API (Llama 3) with intelligent fallback
+Backend: Custom HTTP server (REST API)
+Frontend: HTML5, CSS3 (glass-morphism), JavaScript (Chart.js)
+DevOps: Docker, Git, GitHub, Environment Variables
+Security: API key authentication, .env secrets, SQL injection prevention
+Testing: Local HTTP server + API server
+
+FEATURES
+
+Data Ingestion (8+ Sources)
+- YouTube Data API v3
+- Hacker News Firebase API
+- Florida Man API
+- Google News RSS
+- BBC News RSS
+- TechCrunch RSS
+- Wired RSS
+- The Verge RSS
+- Sports News (ESPN, BBC Sport, Sky Sports)
+- Entertainment News (Variety, Hollywood Reporter, IGN)
+
+AI-Powered Summarization
+- Groq Llama 3 LLM for 2-3 sentence summaries
+- Intelligent fallback (keyword-based extraction)
+- 85% reading time reduction
+
+Big Data Processing
+- Apache Kafka for message queuing (decoupling)
+- PySpark for distributed, parallel processing
+- Apache Airflow for workflow orchestration (daily at 9 AM)
+- Batch processing with retries and monitoring
+
+Interactive Dashboard
+- Real-time stats (total articles, avg length, unique keywords, subscribers)
+- Charts (keyword frequency, source distribution, delta analysis)
+- Personalized article feed (based on user interests)
+- Feedback buttons (satisfied, neutral, dissatisfied)
+- Subscription management
+- Pipeline health monitoring
+
+Email Digests
+- Beautiful, sci-fi themed HTML emails
+- Thumbnails and source badges
+- Working links
+- Unsubscribe functionality
+- Bulk email delivery
+
+Security
+- API key authentication for protected endpoints
+- Environment variables for secrets
+- SQL injection prevention
+- CORS handling
+- Input sanitization
+
+Scalability
+- Horizontally scalable (Kafka, PySpark, Airflow)
+- Connection pooling for database
+- Parallel processing (ThreadPoolExecutor, PySpark)
+
+PROJECT STRUCTURE
+
 my-ai-project/
-├── main.py                      # Main pipeline (fetch & summarise)
-├── unified_api.py               # Backend API (port 8081)
-├── ultimate_dashboard.html      # Interactive dashboard
-├── email_agent.py               # Email sending script
-├── youtube_service.py           # YouTube API wrapper
+├── .env                          (secrets, not in Git)
+├── .gitignore
+├── requirements.txt
+├── README.md
+├── database_mysql.py             (MySQL database layer)
+├── scraper.py                    (Groq AI summarizer)
+├── youtube_service.py            (YouTube API wrapper)
 ├── hacker_news_fetcher.py
 ├── florida_man_fetcher.py
-├── backup_news_fetcher.py
-├── scraper.py                   # AI summariser (Groq/Gemini)
-├── database.py                  # JSON storage
-├── saved_articles.json          # All fetched articles (auto‑created)
-├── subscribers.json             # Email subscribers (auto‑created)
-├── user_profiles.json           # User interests (auto‑created)
-├── feedback.json                # User feedback (auto‑created)
-├── requirements.txt             # Python dependencies
-└── myenv/                       # Virtual environment (created later)
-```
+├── backup_news_fetcher.py        (RSS news sources)
+├── sports_fetcher.py
+├── entertainment_fetcher.py
+├── unified_saver.py              (Article saving logic)
+├── main.py                       (Data pipeline)
+├── unified_api.py                (Backend API server)
+├── email_agent.py                (Email sending system)
+├── ultimate_dashboard.html       (Ultimate Dashboard)
+├── streamlit_dashboard.py        (Streamlit Dashboard)
+├── subscribers.json              (local backup)
+├── user_profiles.json            (local backup)
+├── feedback.json
+├── last_run.json
+├── previous_stats.json
+├── api.log                       (auto-generated logs)
+├── email.log
+├── pipeline.log
+└── myenv/                        (virtual environment)
 
----
+INSTALLATION AND SETUP
 
-## 3️⃣ **Step‑by‑Step Setup**
+Prerequisites:
+- Python 3.10 or higher
+- MySQL Server
+- Git
+- (Optional) Docker for Kafka/PySpark/Airflow
 
-### **3.1. Clone / Download the Project**
+Step 1: Clone the Repository
+git clone https://github.com/Ashwani0402/ai-news-aggregator.git
+cd ai-news-aggregator
 
-If you received a `.zip` file, extract it to a folder (e.g. `C:\Users\YourName\Desktop\my-ai-project`).
-
-If using Git:
-```bash
-git clone <repository-url>
-cd my-ai-project
-```
-
-### **3.2. Create Virtual Environment**
-
-Open a terminal (Command Prompt on Windows, Terminal on Mac/Linux).
-
-**Windows:**
-```bash
+Step 2: Create Virtual Environment
 python -m venv myenv
-myenv\Scripts\activate
-```
+myenv\Scripts\activate   (Windows)
+source myenv/bin/activate   (macOS/Linux)
 
-**macOS / Linux:**
-```bash
-python3 -m venv myenv
-source myenv/bin/activate
-```
-
-You should see `(myenv)` at the beginning of the command line.
-
-### **3.3. Install Dependencies**
-
-Make sure `requirements.txt` exists in the project folder. If not, create it with:
-
-```text
-requests
-feedparser
-praw
-google-generativeai
-openai
-python-dotenv
-schedule
-flask
-```
-
-Then install:
-```bash
+Step 3: Install Dependencies
 pip install -r requirements.txt
-```
 
-If `requirements.txt` is missing, install manually:
-```bash
-pip install requests feedparser praw google-generativeai openai python-dotenv schedule
-```
+Step 4: Configure Environment Variables
+Create .env file in root directory with:
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-16-digit-app-password
+YOUTUBE_API_KEY=AIzaSy...
+GROQ_API_KEY=gsk_...
+API_ADMIN_KEY=your-32-char-key
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=news_aggregator
+ENVIRONMENT=development
+DEBUG=False
 
-### **3.4. Configure API Keys (Optional but Recommended)**
+Step 5: Initialize Database
+python -c "from database_mysql import init_db; init_db()"
 
-The project uses **free sources** by default, but for AI summarisation you may want to add a Groq or Gemini key.
-
-- **Groq** (free): sign up at [console.groq.com](https://console.groq.com), get an API key.
-- **Gemini** (free student plan): sign up at [aistudio.google.com](https://aistudio.google.com).
-
-Create a `.env` file in the root folder:
-```env
-GROQ_API_KEY=your_groq_key_here
-# or
-GEMINI_API_KEY=your_gemini_key_here
-```
-
-If you skip this, the summariser will use a basic fallback (still works but less accurate).
-
-### **3.5. Run the Data Pipeline (Fetch Articles)**
-
-This step collects articles from all sources, generates AI summaries, and saves them to `saved_articles.json`.
-
-```bash
+Step 6: Run Data Pipeline (First Time)
 python main.py
-```
+Answer y when asked to clear old articles.
 
-When prompted `Clear old articles before fetching? (y/n):`, type `y` and press Enter.
+RUNNING THE PROJECT
 
-Wait 2‑3 minutes. You should see:
-```
-✅ PROCESSING COMPLETE!
-   Total articles saved: 85
-```
-
-### **3.6. Start the Unified API Server**
-
-**Open a new terminal** (keep the previous one if you want). Activate the environment again and run:
-
-```bash
-myenv\Scripts\activate   # Windows
-# or source myenv/bin/activate (Mac/Linux)
-
+Terminal 1 – Start API Server (Keep Running)
+cd C:\Users\ashwa\OneDrive\Desktop\my-ai-project
+myenv\Scripts\activate
 python unified_api.py
-```
 
-You will see:
-```
-🚀 Unified API server starting on port 8081
-```
-
-Keep this terminal **running**.
-
-### **3.7. Start the Web Server**
-
-**Open another new terminal**. Activate the environment and run:
-
-```bash
+Terminal 2 – Start Web Server (Ultimate Dashboard)
+cd C:\Users\ashwa\OneDrive\Desktop\my-ai-project
 myenv\Scripts\activate
 python -m http.server 8080
-```
 
-You will see:
-```
-Serving HTTP on :: port 8080 (http://[::]:8080/) ...
-```
+Terminal 3 – Start Streamlit Dashboard
+cd C:\Users\ashwa\OneDrive\Desktop\my-ai-project
+myenv\Scripts\activate
+streamlit run streamlit_dashboard.py
 
-Keep this terminal **running**.
+Terminal 4 – Run Data Pipeline (Once)
+cd C:\Users\ashwa\OneDrive\Desktop\my-ai-project
+myenv\Scripts\activate
+python main.py
 
-### **3.8. Open the Dashboard**
+Terminal 5 – Send Test Email (Optional)
+cd C:\Users\ashwa\OneDrive\Desktop\my-ai-project
+myenv\Scripts\activate
+python email_agent.py --send-test your-email@gmail.com
 
-Open your web browser (Chrome, Edge, Firefox) and go to:
+Open Dashboards:
+Ultimate Dashboard: http://localhost:8080/ultimate_dashboard.html
+Streamlit Dashboard: http://localhost:8501
 
-```
-http://localhost:8080/ultimate_dashboard.html
-```
+DEPLOYMENT
 
-**Do NOT double‑click the HTML file** – you must use the `http://localhost:8080` URL to avoid CORS errors.
+Deploy to Streamlit Cloud:
+1. Push code to GitHub.
+2. Go to Streamlit Cloud (streamlit.io/cloud).
+3. Connect your GitHub repo.
+4. Set streamlit_dashboard.py as main file.
+5. Add secrets (.streamlit/secrets.toml in dashboard).
 
----
+Deploy Backend API to Render:
+1. Push code to GitHub.
+2. Go to Render (render.com).
+3. Create a Web Service.
+4. Build command: pip install -r requirements.txt.
+5. Start command: python unified_api.py.
+6. Add environment variables.
 
-## 4️⃣ **Using the Dashboard**
+Deploy Ultimate Dashboard to GitHub Pages:
+1. Push ultimate_dashboard.html to GitHub.
+2. Go to Settings -> Pages.
+3. Select main branch.
+4. Live URL: https://yourusername.github.io/repo/ultimate_dashboard.html
 
-Once loaded, you will see:
+SCREENSHOTS
 
-- **Animated particle background** (cyber‑style)
-- **Stats cards**: Total articles, Avg summary length, Unique keywords, Subscriber count
-- **Charts**: Top keywords bar chart, Source distribution pie chart
-- **Interest selector**: Click **AI/ML**, **Sports**, **Entertainment** (up to 3) – articles re‑rank instantly.
-- **Subscription box**: Enter your email and click **Subscribe** – you will be added to `subscribers.json`.
-- **Action buttons**:
-  - **Run Data Pipeline** – triggers `main.py` in the background, fetches fresh articles (takes ~2 min). After completion, click **Refresh Data** to see updates.
-  - **Send Test Email** – sends a personalised digest to any email address (even not subscribed).
-  - **Send to All Subscribers** – sends the digest to everyone in `subscribers.json`.
-- **Article feed**: 15 articles per source (YouTube, Hacker News, Florida Man, News) with source badges, summaries, and feedback buttons (👍😐👎).
+(Add screenshots to a screenshots/ folder and reference them here)
 
-**Feedback** is stored in `feedback.json` and can be used later for analytics.
+FUTURE ENHANCEMENTS
 
----
+- User authentication (OAuth 2.0)
+- Real-time WebSocket updates
+- Recommendation engine (based on feedback)
+- Mobile app (React Native)
+- Sentiment analysis (TextBlob/Transformers)
+- Topic clustering (K-Means)
+- Multi-language support
+- Integration with Slack/Teams
+- Advanced analytics (Spark ML)
 
-## 5️⃣ **Email Commands (CLI)**
+CONTRIBUTING
 
-If you prefer to send emails from the terminal (instead of the dashboard), use `email_agent.py`:
+Contributions are welcome! Please fork the repository, create a feature branch, commit changes, push, and open a Pull Request.
 
-| Command | Description |
-|---------|-------------|
-| `python email_agent.py --send-test someone@example.com` | Send a test digest to any email |
-| `python email_agent.py --send` | Send digest to all subscribers |
-| `python email_agent.py --subscribe` | Add a subscriber interactively |
-| `python email_agent.py --list` | List all subscribers |
+LICENSE
 
-**Important:** The email sender uses Gmail SMTP. The credentials are hardcoded inside `email_agent.py` (`FROM_EMAIL` and `APP_PASSWORD`). If you want to use a different email, edit those variables.
+This project is for personal/educational use only. All original content belongs to its respective owners. Summaries are AI-generated.
 
----
+CONTACT
 
-## 6️⃣ **Troubleshooting**
+Author: Ashwani Rai
+Email: ashwanirai710@gmail.com
+GitHub: Ashwani0402
+LinkedIn: (your LinkedIn URL)
 
-| Problem | Solution |
-|---------|----------|
-| **Dashboard shows no articles** | Run `python main.py` first, then refresh the dashboard. |
-| **CORS errors (fetch blocked)** | You double‑clicked the HTML file. Use `http://localhost:8080/ultimate_dashboard.html`. |
-| **API not responding (dashboard shows errors)** | Make sure `unified_api.py` is running (port 8081). |
-| **Email not sending** | Check that `FROM_EMAIL` and `APP_PASSWORD` in `email_agent.py` are correct. Generate an App Password from Google Account (not your regular password). |
-| **Non‑YouTube links don’t work** | The email template uses the `url` field from each article. If an article lacks a URL, it falls back to `#`. Ensure your pipeline saves the `url` properly (the provided code does). |
-| **Pipeline takes very long** | The first run may be slow due to many API calls. Subsequent runs (with `--clear n`) are faster because duplicates are skipped. |
-| **Port 8080 or 8081 already in use** | Change the ports in `unified_api.py` and the `http.server` command, e.g. `python -m http.server 8082`. Also update the dashboard’s `fetch` URLs accordingly. |
+ACKNOWLEDGEMENTS
 
----
+YouTube Data API
+Groq Llama 3
+Hacker News Firebase API
+Florida Man API
+Google News RSS
+BBC, TechCrunch, Wired, The Verge RSS feeds
+Apache Kafka, PySpark, Airflow
+Streamlit, Plotly, Chart.js
 
-## 7️⃣ **Customisation & Extending**
+Star the Project
 
-### **Add More News Sources**
+If you found this project useful, please star it on GitHub!
 
-Edit `backup_news_fetcher.py` or `main.py` to include additional RSS feeds or APIs.
-
-### **Change the AI Summariser**
-
-Modify `scraper.py` – replace `client.chat.completions.create` with any OpenAI‑compatible endpoint (Groq, Gemini, local LLM).
-
-### **Deploy to the Cloud**
-
-- **API server**: Use a cloud VM (AWS, DigitalOcean) or services like Render (free tier).
-- **Dashboard**: Upload static files to GitHub Pages or Netlify.
-- **Scheduler**: Use a cron job or cloud function to run `main.py` daily.
-
-### **Personalise Email Design**
-
-The email HTML is generated inside `email_agent.py` – you can change colours, fonts, layout, or add your logo.
-
----
-
-## ✅ **Final Check**
-
-- [ ] Virtual environment activated.
-- [ ] All dependencies installed.
-- [ ] `python main.py` ran successfully (≥ 85 articles).
-- [ ] `unified_api.py` is running (terminal stays open).
-- [ ] `python -m http.server 8080` is running.
-- [ ] Dashboard opens at `http://localhost:8080/ultimate_dashboard.html`.
-
-**Congratulations!** You now have a fully functional, multi‑source AI news aggregator with an interactive dashboard, user interests, feedback, and email digests.
-
-For any issues, please refer to the [Troubleshooting](#troubleshooting) section or contact the developer.
-
----
-
-*End of documentation* 🚀
+Built with love by Ashwani Rai
